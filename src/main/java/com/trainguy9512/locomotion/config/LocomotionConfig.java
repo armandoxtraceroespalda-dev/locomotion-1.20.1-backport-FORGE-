@@ -82,6 +82,8 @@ public class LocomotionConfig {
 
             public boolean enableRenderer = true;
 
+            public java.util.List<String> itemBlacklist = new java.util.ArrayList<>();
+
             public boolean enableCameraRotationDamping = true;
             public float cameraRotationStiffnessFactor = 0.3f;
             public float cameraRotationDampingFactor = 0.65f;

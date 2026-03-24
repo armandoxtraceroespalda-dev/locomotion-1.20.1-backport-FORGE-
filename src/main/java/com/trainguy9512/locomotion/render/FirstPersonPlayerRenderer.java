@@ -150,8 +150,13 @@ public class FirstPersonPlayerRenderer implements RenderLayerParent<AvatarRender
 
                             playerModel.body.visible = false;
 
-                            this.renderArm(player, playerModel, HumanoidArm.LEFT, poseStack, nodeCollector, combinedLight);
-                            this.renderArm(player, playerModel, HumanoidArm.RIGHT, poseStack, nodeCollector, combinedLight);
+                            boolean leftHanded2 = this.minecraft.options.mainHand().get() == HumanoidArm.LEFT;
+                            if (!isItemBlacklisted(player.getItemInHand(leftHanded2 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND))) {
+                                this.renderArm(player, playerModel, HumanoidArm.LEFT, poseStack, nodeCollector, combinedLight);
+                            }
+                            if (!isItemBlacklisted(player.getItemInHand(leftHanded2 ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND))) {
+                                this.renderArm(player, playerModel, HumanoidArm.RIGHT, poseStack, nodeCollector, combinedLight);
+                            }
 
                             //this.entityRenderDispatcher.render(abstractClientPlayer, 0, 0, 0, partialTicks, poseStack, buffer, combinedLight);
 
@@ -251,8 +256,13 @@ public class FirstPersonPlayerRenderer implements RenderLayerParent<AvatarRender
 
                             playerModel.body.visible = false;
 
-                            this.renderArm(player, playerModel, HumanoidArm.LEFT, poseStack, bufferSource, combinedLight);
-                            this.renderArm(player, playerModel, HumanoidArm.RIGHT, poseStack, bufferSource, combinedLight);
+                            boolean leftHanded2 = this.minecraft.options.mainHand().get() == HumanoidArm.LEFT;
+                            if (!isItemBlacklisted(player.getItemInHand(leftHanded2 ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND))) {
+                                this.renderArm(player, playerModel, HumanoidArm.LEFT, poseStack, bufferSource, combinedLight);
+                            }
+                            if (!isItemBlacklisted(player.getItemInHand(leftHanded2 ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND))) {
+                                this.renderArm(player, playerModel, HumanoidArm.RIGHT, poseStack, bufferSource, combinedLight);
+                            }
 
                             boolean leftHanded = this.minecraft.options.mainHand().get() == HumanoidArm.LEFT;
 
@@ -306,10 +316,28 @@ public class FirstPersonPlayerRenderer implements RenderLayerParent<AvatarRender
     }*/
     //?}
 
+    private static boolean isItemBlacklisted(ItemStack itemStack) {
+        if (itemStack.isEmpty()) return false;
+        net.minecraft.resources.ResourceLocation itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(itemStack.getItem());
+        if (itemId == null) return false;
+        return com.trainguy9512.locomotion.LocomotionMain.CONFIG.data().firstPersonPlayer.itemBlacklist.contains(itemId.toString());
+    }
+
     private static ItemStack getItemStackInHandToRender(AnimationDataContainer dataContainer, LocalPlayer localPlayer, InteractionHand hand) {
         ItemStack driverItem = dataContainer.getDriverValue(FirstPersonDrivers.getItemDriver(hand));
         ItemStack driverRenderedItem = dataContainer.getDriverValue(FirstPersonDrivers.getRenderedItemDriver(hand));
         ItemStack playerItem = localPlayer.getItemInHand(hand);
+
+        // Blacklist check — return EMPTY so the item is not rendered by Locomotion
+        if (!playerItem.isEmpty()) {
+            net.minecraft.resources.ResourceLocation itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(playerItem.getItem());
+            if (itemId != null) {
+                java.util.List<String> blacklist = com.trainguy9512.locomotion.LocomotionMain.CONFIG.data().firstPersonPlayer.itemBlacklist;
+                if (blacklist.contains(itemId.toString())) {
+                    return ItemStack.EMPTY;
+                }
+            }
+        }
 
         if (!ItemStack.isSameItem(playerItem, driverRenderedItem)) {
             return driverRenderedItem;

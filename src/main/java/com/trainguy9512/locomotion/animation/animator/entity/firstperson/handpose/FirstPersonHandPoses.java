@@ -419,6 +419,17 @@ public class FirstPersonHandPoses {
 
     public static Identifier testForNextHandPose(ItemStack itemStack, InteractionHand hand) {
 
+        // Check blacklist — items on the list skip all Locomotion poses
+        if (!itemStack.isEmpty()) {
+            net.minecraft.resources.ResourceLocation itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(itemStack.getItem());
+            if (itemId != null) {
+                java.util.List<String> blacklist = com.trainguy9512.locomotion.LocomotionMain.CONFIG.data().firstPersonPlayer.itemBlacklist;
+                if (blacklist.contains(itemId.toString())) {
+                    return getEmptyHandPose(hand);
+                }
+            }
+        }
+
         Map<Identifier, HandPoseDefinition> handPosesSortedByPriority = HAND_POSES_BY_IDENTIFIER.entrySet()
                 .stream()
                 .sorted(Comparator.comparingInt(entry -> -entry.getValue().evaluationPriority()))

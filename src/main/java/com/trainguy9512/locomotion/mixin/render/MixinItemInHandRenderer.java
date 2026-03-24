@@ -75,6 +75,12 @@ public class MixinItemInHandRenderer {
             AbstractClientPlayer player, float partialTick, float pitch, InteractionHand hand, float swingProgress, ItemStack item, float equippedProgress, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, CallbackInfo ci
     ) {
         if (LocomotionMain.CONFIG.data().firstPersonPlayer.enableRenderer) {
+            if (!item.isEmpty()) {
+                net.minecraft.resources.ResourceLocation itemId = net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(item.getItem());
+                if (itemId != null && LocomotionMain.CONFIG.data().firstPersonPlayer.itemBlacklist.contains(itemId.toString())) {
+                    return;
+                }
+            }
             ci.cancel();
         }
     }*/

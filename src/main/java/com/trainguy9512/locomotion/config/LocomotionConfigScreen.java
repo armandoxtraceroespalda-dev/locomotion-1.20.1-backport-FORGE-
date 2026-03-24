@@ -15,6 +15,8 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class LocomotionConfigScreen {
@@ -202,6 +204,15 @@ public class LocomotionConfigScreen {
                                         .range(-16.00f, 16.00f)
                                         .step(0.1f))
                                 .build())
+                        .build())
+                .group(ListOption.<String>createBuilder()
+                        .name(Component.literal("Item Blacklist"))
+                        .description(OptionDescription.createBuilder()
+                                .text(Component.literal("Items in this list will not use Locomotion animations. Use item IDs like minecraft:shield or modid:item_name."))
+                                .build())
+                        .binding(new ArrayList<>(), () -> config.data().firstPersonPlayer.itemBlacklist, newValue -> config.data().firstPersonPlayer.itemBlacklist = newValue)
+                        .controller(option -> StringControllerBuilder.create(option))
+                        .initial("")
                         .build())
                 .build();
     }
